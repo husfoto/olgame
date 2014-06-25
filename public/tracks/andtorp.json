@@ -1,0 +1,46 @@
+{
+	"olGame" : {
+		"map-file" : "andtorp-m.jpg",
+		"terrain-file" : "andtorp-t.jpg",
+		"map-scale" : 1,
+		"terrain-scale" : 1,
+		"height-scale" : 1,
+
+		"olTracks" : [
+
+			{"name" : "Ändtorpskampen",
+			"creator" : "Erik Österberg",
+			"trackControlPoints" : [
+				{"controlPoint" : [1978,2080]},
+				{"controlPoint" : [1500,1700]},
+				{"controlPoint" : [1215,1390]},
+				{"controlPoint" : [928,924]},
+				{"controlPoint" : [375,1217]},
+				{"controlPoint" : [438,1654]},
+				{"controlPoint" : [1028,1844]},
+				{"controlPoint" : [868,2197]},
+				{"controlPoint" : [1065,2210]},
+				{"controlPoint" : [1642,2050]},
+				{"controlPoint" : [2075,2150]}
+			]
+			},
+
+			{"name" : "Ändtorpsjoggen",
+			"creator" : "Erik Österberg",
+			"trackControlPoints" : [
+				{"controlPoint" : [2075,2150]},
+				{"controlPoint" : [1642,2050]},
+				{"controlPoint" : [1065,2210]},
+				{"controlPoint" : [868,2197]},
+				{"controlPoint" : [1028,1844]},
+				{"controlPoint" : [438,1654]},
+				{"controlPoint" : [375,1217]},
+				{"controlPoint" : [928,924]},
+				{"controlPoint" : [1215,1390]},
+				{"controlPoint" : [1500,1700]},
+				{"controlPoint" : [1978,2080]}
+			]
+			}
+		]
+	}
+}
