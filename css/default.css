@@ -1,0 +1,9 @@
+@charset "UTF-8";
+
+body {
+	background:#ffffff;
+}
+
+.hidden {
+  display: none;
+}

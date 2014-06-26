@@ -1,44 +1,44 @@
 {
 	"olGame" : {
-		"map-file" : "andtorp-m.jpg",
-		"terrain-file" : "andtorp-t.jpg",
-		"map-scale" : 1,
-		"terrain-scale" : 1,
-		"height-scale" : 1,
+		"mapFile" : "andtorp-m.jpg",
+		"terrainFile" : "andtorp-t.jpg",
+		"mapScale" : 1,
+		"terrainScale" : 1,
+		"heightScale" : 1,
 
 		"olTracks" : [
 
 			{"name" : "Ändtorpskampen",
 			"creator" : "Erik Österberg",
 			"trackControlPoints" : [
-				{"controlPoint" : [1978,2080]},
-				{"controlPoint" : [1500,1700]},
-				{"controlPoint" : [1215,1390]},
-				{"controlPoint" : [928,924]},
-				{"controlPoint" : [375,1217]},
-				{"controlPoint" : [438,1654]},
-				{"controlPoint" : [1028,1844]},
-				{"controlPoint" : [868,2197]},
-				{"controlPoint" : [1065,2210]},
-				{"controlPoint" : [1642,2050]},
-				{"controlPoint" : [2075,2150]}
+				{"x" : 1978, "y": 2080},
+				{"x" : 1500, "y": 1700},
+				{"x" : 1215, "y": 1390},
+				{"x" : 928, "y": 924},
+				{"x" : 375, "y": 1217},
+				{"x" : 438, "y": 1654},
+				{"x" : 1028, "y": 1844},
+				{"x" : 868, "y": 2197},
+				{"x" : 1065, "y": 2210},
+				{"x" : 1642, "y": 2050},
+				{"x" : 2075, "y": 2150}
 			]
 			},
 
 			{"name" : "Ändtorpsjoggen",
 			"creator" : "Erik Österberg",
 			"trackControlPoints" : [
-				{"controlPoint" : [2075,2150]},
-				{"controlPoint" : [1642,2050]},
-				{"controlPoint" : [1065,2210]},
-				{"controlPoint" : [868,2197]},
-				{"controlPoint" : [1028,1844]},
-				{"controlPoint" : [438,1654]},
-				{"controlPoint" : [375,1217]},
-				{"controlPoint" : [928,924]},
-				{"controlPoint" : [1215,1390]},
-				{"controlPoint" : [1500,1700]},
-				{"controlPoint" : [1978,2080]}
+				{"x" : 2075, "y": 2150},
+				{"x" : 1642, "y": 2050},
+				{"x" : 1065, "y": 2210},
+				{"x" : 868, "y": 2197},
+				{"x" : 1028, "y": 1844},
+				{"x" : 438, "y": 1654},
+				{"x" : 375, "y": 1217},
+				{"x" : 928, "y": 924},
+				{"x" : 1215, "y": 1390},
+				{"x" : 1500, "y": 1700},
+				{"x" : 1978, "y": 2080}
 			]
 			}
 		]
