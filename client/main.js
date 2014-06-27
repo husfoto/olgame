@@ -4,6 +4,7 @@ var terrainMap;
 var visibleMap;
 var olTrack=new Array;
 var currentCtrl=1;
+var currentLocation, lastLocation, currentDistans;
 
 var mainPathBkg = new Path();
 mainPathBkg.strokeWidth=6;
@@ -24,6 +25,13 @@ var blockMouse = false;
 var tail=false;
 var animateRun=false;
 var targetView=view.center; // Sets target view
+
+var	runner=new Path.Circle(view.center,10);
+runner.visible=false;
+runner.strokeWidth=2;
+runner.strokeColor='black';
+runner.fillColor='yellow';	
+
 
 function setOldPathStyle(){
 	oldPath.strokeColor='mediumgray';
@@ -207,10 +215,6 @@ function onMouseUp(event){
 	}*/
 }
 
-function getLegTime() {
-	console.log('LEGLEG');
-}
-
 function centerOnCtrl(idx){
 	// Finds the centerpoint to the current ctrl and centers view
 	var vect=olTrack[idx]-olTrack[idx-1];
@@ -222,20 +226,35 @@ function activateNextCtrl(){
 	blockMouse=true;
 	if (currentCtrl<(olTrack.length)){
 		mainPath.simplify();
-		getLegTime();
-		++currentCtrl;
 		rearPath.addSegments(mainPath.segments);
-		mainPath.removeSegments();
-		setPathBkg();
-		centerOnCtrl(currentCtrl);
-		blockMouse=false;
+
+		currentDistans=0;
+		currentLocation=mainPath.getLocationAt(currentDistans).point;
+		currentDistans=2;
+		runner.visible=true;
+		animateRun=true;
+
 	}
 }
 
 function onFrame(event){
-	// Animate the run
+	// Animate the run //Check order of events
 	if (animateRun) {
-
+		if (currentDistans<mainPath.length){
+			lastLocation=currentLocation;
+			currentLocation=mainPath.getLocationAt(currentDistans).point;
+			currentDistans+=getSpeed(lastLocation,currentLocation)*event.delta*20;
+			runner.position=currentLocation;
+			targetView=runner.position;
+		} else {
+			animateRun=false;
+			++currentCtrl;
+			centerOnCtrl(currentCtrl);
+			blockMouse=false;
+//			runner.visible=false;
+			mainPath.removeSegments();
+			setPathBkg();
+		}
 	}
 	// Animate view
 	var viewDist=targetView-view.center;
