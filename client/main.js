@@ -29,6 +29,7 @@ var tail=false;
 var animateRun=false;
 var targetView=view.center; // Sets target view
 var targetZoom=0.5;
+var currentTime=0;
 
 var	runner=new Path.Circle(view.center,10);
 runner.visible=false;
@@ -241,6 +242,7 @@ function activateNextCtrl(){
 		mainPathBkg.removeSegments();
 
 		currentDistans=0;
+		currentTime=0;
 		currentLocation=mainPath.getLocationAt(currentDistans).point;
 		currentDistans=2;
 		runner.visible=true;
@@ -256,10 +258,13 @@ function onFrame(event){
 		if (currentDistans<mainPath.length){
 			lastLocation=currentLocation;
 			currentLocation=mainPath.getLocationAt(currentDistans).point;
-			currentDistans+=getSpeed(lastLocation,currentLocation)*event.delta*50;
+			currentDistans+=getSpeed(lastLocation,currentLocation)*event.delta*25;
 			runner.position=currentLocation;
 			targetView=runner.position;
+			currentTime+=event.delta;
 		} else {
+			currentTime=currentTime/3;
+			document.getElementById("dialog").innerHTML+="Str."+currentCtrl+" - Tid."+currentTime.toFixed(2)+"<br>";
 			animateRun=false;
 			++currentCtrl;
 			centerOnCtrl(currentCtrl);
@@ -272,12 +277,12 @@ function onFrame(event){
 	// Animate view
 	var viewDist=targetView-view.center;
 	if (viewDist.length>1){
-		viewDist.length=viewDist.length/20;
+		viewDist.length=viewDist.length/25;
 		view.center+=viewDist;
 	}
 	var zoomDiff=view.zoom-targetZoom;
 	if (zoomDiff>0.1 || zoomDiff<-0.1) {
-		view.zoom-=zoomDiff/50;
+		view.zoom-=zoomDiff/100;
 	}
 }
 
@@ -285,6 +290,8 @@ function onFrame(event){
 	paper.view.viewSize = new Size(document.getElementById("olCanvas").width, document.getElementById("olCanvas").height);
 	console.log("VIEW:" + document.getElementById("olCanvas").width+" "+document.getElementById("olCanvas").height);
 }*/
+
+
 
 loadImages('');
 drawTrack();

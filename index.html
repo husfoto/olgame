@@ -1,13 +1,27 @@
 <!DOCTYPE html>
-<html>
+<html lang="sv">
 	<head>
+		<meta charset="utf-8">
 		<link rel="stylesheet" href="css/default.css"/>
 		<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/paper.js/0.9.18/paper-full.min.js"></script>
 		<script type="text/paperscript" src="client/main.js" canvas="olCanvas"></script>
+		<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
+		<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+		<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
+	  	<script>
+			$(function() {
+				$( "#dialog" ).dialog({ position: {my: "right-100 top+50", at: "right top", of: window } });
+				$( "#dialog" ).dialog( "option", "width", 200 );
+				$( "#dialog" ).dialog( "option", "height", 250 );
+			});
+	  	</script>
 	</head>
 	<body>
-
 		<canvas resize="true" id="olCanvas" ></canvas>
+		<div id="dialog" title="Dina sträcktider">
+		
+		</div>
+
 		<img class="hidden" id="visibleMap" src="public/tracks/andtorp-m.jpg"></img>
 		<img class="hidden" id="terrainMap" src="public/tracks/andtorp-t.jpg"></img>
 	</body>
