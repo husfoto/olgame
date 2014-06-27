@@ -1,10 +1,13 @@
 tool.minDistance = 2;
+view.zoom=0.1;
+dragTolerance=100;
 
 var terrainMap;
 var visibleMap;
 var olTrack=new Array;
 var currentCtrl=1;
 var currentLocation, lastLocation, currentDistans;
+var dragMap=false;
 
 var mainPathBkg = new Path();
 mainPathBkg.strokeWidth=6;
@@ -25,13 +28,13 @@ var blockMouse = false;
 var tail=false;
 var animateRun=false;
 var targetView=view.center; // Sets target view
+var targetZoom=0.5;
 
 var	runner=new Path.Circle(view.center,10);
 runner.visible=false;
 runner.strokeWidth=2;
 runner.strokeColor='black';
 runner.fillColor='yellow';	
-
 
 function setOldPathStyle(){
 	oldPath.strokeColor='mediumgray';
@@ -131,10 +134,12 @@ function drawTrack() {
 function onMouseDown(event){
 	if (!blockMouse) {
 		if ((mainPath.length==0)) { //Empty path?
-			if (event.point.getDistance(olTrack[currentCtrl-1])<20){
+			if (event.point.getDistance(olTrack[currentCtrl-1])<tolerance){
 				mainPath.add(olTrack[currentCtrl-1]);
 				mainPath.add(event.point);
-			}
+			} else {
+				dragMap=true;
+			};
 		} else {
 			var closest=mainPath.getNearestPoint(event.point);
 			if (event.point.getDistance(closest)<tolerance) { //Check if close to path
@@ -150,14 +155,18 @@ function onMouseDown(event){
 				}
 				setOldPathStyle();
 				mainPath.add(event.point);
+			} else if (event.point.getDistance(mainPath.lastSegment.point)>dragTolerance) {
+				dragMap=true;				
 			} else {mainPath.add(event.point)}; //blockMouse=true (scroll or lines) mainPath.add(event.point)
 		}
 	}
 }
 
 function onMouseDrag(event){
-//console.log(mainPath.length);
-	if (!blockMouse && !(mainPath.length==0)) {
+	if (dragMap) {
+		targetView-=event.delta;
+	}
+	if (!dragMap && !blockMouse && !(mainPath.length==0)) {
 		if (tail){
 			oldPath.join(oldPathTail);
 			oldPathTail.removeSegments();
@@ -176,13 +185,14 @@ function onMouseDrag(event){
 		}
 		mainPath.add(event.point);
 		setPathBkg();		
-	}/* else {
-		view.center-=event.delta;
-	}*/
+	}
 }
 
 function onMouseUp(event){
-	if (!blockMouse && !(mainPath.length==0)) {
+	if (dragMap) {
+		dragMap=false;
+	};
+	if (!dragMap && !blockMouse && !(mainPath.length==0)) {
 		if (tail){
 			oldPath.join(oldPathTail);
 			oldPathTail.removeSegments();
@@ -220,6 +230,7 @@ function centerOnCtrl(idx){
 	var vect=olTrack[idx]-olTrack[idx-1];
 	vect.length=vect.length/2;
 	targetView=olTrack[idx-1]+vect;
+	targetZoom=1;
 }
 
 function activateNextCtrl(){
@@ -227,12 +238,14 @@ function activateNextCtrl(){
 	if (currentCtrl<(olTrack.length)){
 		mainPath.simplify();
 		rearPath.addSegments(mainPath.segments);
+		mainPathBkg.removeSegments();
 
 		currentDistans=0;
 		currentLocation=mainPath.getLocationAt(currentDistans).point;
 		currentDistans=2;
 		runner.visible=true;
 		animateRun=true;
+		targetZoom=0.5;
 
 	}
 }
@@ -243,7 +256,7 @@ function onFrame(event){
 		if (currentDistans<mainPath.length){
 			lastLocation=currentLocation;
 			currentLocation=mainPath.getLocationAt(currentDistans).point;
-			currentDistans+=getSpeed(lastLocation,currentLocation)*event.delta*20;
+			currentDistans+=getSpeed(lastLocation,currentLocation)*event.delta*50;
 			runner.position=currentLocation;
 			targetView=runner.position;
 		} else {
@@ -258,12 +271,22 @@ function onFrame(event){
 	}
 	// Animate view
 	var viewDist=targetView-view.center;
-	if (viewDist.length>3){
-		viewDist.length=viewDist.length/10;
+	if (viewDist.length>1){
+		viewDist.length=viewDist.length/20;
 		view.center+=viewDist;
 	}
+	var zoomDiff=view.zoom-targetZoom;
+	if (zoomDiff>0.1 || zoomDiff<-0.1) {
+		view.zoom-=zoomDiff/50;
+	}
 }
+
+/*function onResize(event){
+	paper.view.viewSize = new Size(document.getElementById("olCanvas").width, document.getElementById("olCanvas").height);
+	console.log("VIEW:" + document.getElementById("olCanvas").width+" "+document.getElementById("olCanvas").height);
+}*/
 
 loadImages('');
 drawTrack();
 centerOnCtrl(currentCtrl);
+
