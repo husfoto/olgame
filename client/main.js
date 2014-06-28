@@ -20,7 +20,7 @@ mainPath.strokeColor='orange';
 
 var oldPath = new Path();
 var oldPathTail = new Path();
-var rearPath = new Path();
+var rearPath = new Path(); //Den smala som visar hela banan
 rearPath.strokeColor='blue';
 rearPath.strokeWidth=3;
 
@@ -70,12 +70,12 @@ function getSpeed(fromPosition,toPosition){
 	return 1/(speed*0.06); // Convert to m/s
 }
 
-function loadImages(trackName){
+function loadImages(trackName,trackId){
     var request = new XMLHttpRequest();
     request.open("GET", "public/tracks/andtorp.json", false);
     request.send(null)
     var my_JSON_object = JSON.parse(request.responseText);
-    my_JSON_object.olGame.olTracks[0].trackControlPoints.forEach(
+    my_JSON_object.olGame.olTracks[trackId].trackControlPoints.forEach(
     	function(value,index){
     		olTrack.push(new Point(value.x,value.y));//new Point(value.x,value.y)
     	}
@@ -161,7 +161,7 @@ function onMouseDown(event){
 				dragMap=true;				
 			} else {mainPath.add(event.point)}; //blockMouse=true (scroll or lines) mainPath.add(event.point)
 		}
-	}
+	} else {dragMap=true};
 }
 
 function onMouseDrag(event){
@@ -249,7 +249,6 @@ function activateNextCtrl(){
 		runner.visible=true;
 		animateRun=true;
 		targetZoom=0.5;
-
 	}
 }
 
@@ -272,7 +271,7 @@ function onFrame(event){
 		if (currentDistans<mainPath.length){
 			lastLocation=currentLocation;
 			currentLocation=mainPath.getLocationAt(currentDistans).point;
-			currentDistans+=getSpeed(lastLocation,currentLocation)*event.delta*25;
+			currentDistans+=getSpeed(lastLocation,currentLocation)*event.delta*250;
 			runner.position=currentLocation;
 			targetView=runner.position;
 			currentTime+=event.delta;
@@ -280,11 +279,16 @@ function onFrame(event){
 		} else {
 			animateRun=false;
 			++currentCtrl;
-			centerOnCtrl(currentCtrl);
-			blockMouse=false;
-//			runner.visible=false;
 			mainPath.removeSegments();
 			setPathBkg();
+			if (currentCtrl==olTrack.length) {
+				targetView=rearPath.bounds.center;
+				targetZoom=0.3;
+				console.log('SLUT');
+			} else {
+				centerOnCtrl(currentCtrl);
+				blockMouse=false;
+			}
 		}
 		updateLegTimes();
 	}
@@ -294,6 +298,10 @@ function onFrame(event){
 		viewDist.length=viewDist.length/25;
 		view.center+=viewDist;
 	}
+	if (globals.zoomValue!=0) {
+		targetZoom+=globals.zoomValue/5;
+		globals.zoomValue=0;
+	}
 	var zoomDiff=view.zoom-targetZoom;
 	if (zoomDiff>0.1 || zoomDiff<-0.1) {
 		view.zoom-=zoomDiff/100;
@@ -301,12 +309,7 @@ function onFrame(event){
 }
 
 
-/*function onResize(event){
-	paper.view.viewSize = new Size(document.getElementById("olCanvas").width, document.getElementById("olCanvas").height);
-	console.log("VIEW:" + document.getElementById("olCanvas").width+" "+document.getElementById("olCanvas").height);
-}*/
-
-loadImages('');
+loadImages('',2);
 drawTrack();
 centerOnCtrl(currentCtrl);
 

@@ -8,6 +8,14 @@
 
 		"olTracks" : [
 
+			{"name" : "Testbanan",
+			"creator" : "Erik Österberg",
+			"trackControlPoints" : [
+				{"x" : 1978, "y": 2080},
+				{"x" : 2075, "y": 2150}
+			]
+			},
+
 			{"name" : "Ändtorpskampen",
 			"creator" : "Erik Österberg",
 			"trackControlPoints" : [

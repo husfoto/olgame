@@ -9,10 +9,13 @@
 		<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
 		<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
 	  	<script>
+			window.globals = { 
+					zoomValue:0
+			}; 
 	  		var buttonsZoom = {
 	  			buttons : {
-	  				"+":function(){},
-	  				"-":function(){}
+	  				"+":function(){window.globals.zoomValue+=1},
+	  				"-":function(){window.globals.zoomValue-=1}
 	  			}
 	  		}
 			$(function() {
