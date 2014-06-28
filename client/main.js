@@ -8,6 +8,7 @@ var olTrack=new Array;
 var currentCtrl=1;
 var currentLocation, lastLocation, currentDistans;
 var dragMap=false;
+var legTimes=new Array;
 
 var mainPathBkg = new Path();
 mainPathBkg.strokeWidth=6;
@@ -252,7 +253,20 @@ function activateNextCtrl(){
 	}
 }
 
+function updateLegTimes() {
+	var totalTime=0;
+	var legTableStr='<div class="legTable">';
+	legTimes.forEach(function(value, index){
+		totalTime+=value;
+		legTableStr+='<div class="legTableRow"><div class="legTableColLeft">Str.'+index+'</div><div class="legTableColRight">'+value.toFixed(2)+'</div></div>';		
+	});
+	legTableStr+='<div class="legTableRow"><div class="legTableColLeft">Total tid</div><div class="legTableColRight">'+totalTime.toFixed(2)+'</div></div>';
+	legTableStr+='</div>';
+	document.getElementById("dialog").innerHTML=legTableStr;
+}
+
 function onFrame(event){
+//console.log(legTimes.length);
 	// Animate the run //Check order of events
 	if (animateRun) {
 		if (currentDistans<mainPath.length){
@@ -262,9 +276,8 @@ function onFrame(event){
 			runner.position=currentLocation;
 			targetView=runner.position;
 			currentTime+=event.delta;
+			legTimes[currentCtrl]=currentTime/3; //3an är en guess på tid
 		} else {
-			currentTime=currentTime/3;
-			document.getElementById("dialog").innerHTML+="Str."+currentCtrl+" - Tid."+currentTime.toFixed(2)+"<br>";
 			animateRun=false;
 			++currentCtrl;
 			centerOnCtrl(currentCtrl);
@@ -273,6 +286,7 @@ function onFrame(event){
 			mainPath.removeSegments();
 			setPathBkg();
 		}
+		updateLegTimes();
 	}
 	// Animate view
 	var viewDist=targetView-view.center;
@@ -286,12 +300,11 @@ function onFrame(event){
 	}
 }
 
+
 /*function onResize(event){
 	paper.view.viewSize = new Size(document.getElementById("olCanvas").width, document.getElementById("olCanvas").height);
 	console.log("VIEW:" + document.getElementById("olCanvas").width+" "+document.getElementById("olCanvas").height);
 }*/
-
-
 
 loadImages('');
 drawTrack();

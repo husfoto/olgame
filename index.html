@@ -9,17 +9,25 @@
 		<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
 		<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
 	  	<script>
+	  		var buttonsZoom = {
+	  			buttons : {
+	  				"+":function(){},
+	  				"-":function(){}
+	  			}
+	  		}
 			$(function() {
 				$( "#dialog" ).dialog({ position: {my: "right-100 top+50", at: "right top", of: window } });
-				$( "#dialog" ).dialog( "option", "width", 200 );
-				$( "#dialog" ).dialog( "option", "height", 250 );
+				$( "#dialog" ).dialog( "option", "width", 175 );
+				$( "#dialog" ).dialog( "option", "height", 260);
+				$( "#dialog" ).dialog(buttonsZoom);
+				$( "#dialog" ).dialog({dialogClass : 'no-close'});
 			});
 	  	</script>
 	</head>
 	<body>
 		<canvas resize="true" id="olCanvas" ></canvas>
 		<div id="dialog" title="Dina sträcktider">
-		
+			Starta genom att rita en linje från starten. <br>Du kan rita om delar av linjen så länge du inte dragit den sista biten fram till kontrollen.<br>Lycka till!
 		</div>
 
 		<img class="hidden" id="visibleMap" src="public/tracks/andtorp-m.jpg"></img>

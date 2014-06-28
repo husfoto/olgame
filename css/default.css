@@ -5,6 +5,10 @@ body {
 	font-size : 12px;
 }
 
+.no-close .ui-dialog-titlebar-close {
+	display: none;
+}
+
 #olCanvasOverlay {
 	position:absolute;
 	top:0;
@@ -26,3 +30,27 @@ body {
 	background-color: #AAAAAA;
 	z-index:2;
 }
+
+.legTable {
+	display:table;
+	width:100%;
+	border-collapse: collapse;
+}
+
+.legTableRow {
+	display:table-row;
+}
+
+.legTableRow:last-child {
+	border-top: 2px solid black;
+}
+ 
+.legTableColLeft {
+	display:table-cell;
+}
+
+.legTableColRight {
+	display:table-cell;
+	text-align: right;
+}
+
