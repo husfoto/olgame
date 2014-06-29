@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<link rel="stylesheet" href="css/default.css"/>
 		<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/paper.js/0.9.18/paper-full.min.js"></script>
-		<script type="text/paperscript" src="client/main.js" canvas="olCanvas"></script>
+		<script type="text/paperscript" src="client/main-track.js" canvas="olCanvas"></script>
 		<link rel="stylesheet" href="http://code.jquery.com/ui/1.11.0/themes/smoothness/jquery-ui.css">
 		<script src="http://code.jquery.com/jquery-1.10.2.js"></script>
 		<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
@@ -20,24 +20,17 @@
 	  		};
 			$(function() {
 				$( "#dialog" ).dialog({ position: {my: "right-100 top+50", at: "right top", of: window } });
-				$( "#dialog" ).dialog( "option", "width", 175 );
-				$( "#dialog" ).dialog( "option", "height", 260);
+				$( "#dialog" ).dialog( "option", "width", 250 );
+				$( "#dialog" ).dialog( "option", "height", 400);
 				$( "#dialog" ).dialog(buttonsZoom);
 				$( "#dialog" ).dialog({dialogClass : 'no-close'})});
-			$(function() {
-				$( "#chat" ).dialog({ position: {my: "left+5 bottom-5", at: "left bottom", of: window } });
-				$( "#chat" ).dialog( "option", "width", 300 );
-				$( "#chat" ).dialog( "option", "height", 100)});
 	  	</script>
 	</head>
 	<body>
 		<canvas resize="true" id="olCanvas" ></canvas>
-		<div id="dialog" title="Dina sträcktider">
-			Starta genom att rita en linje från starten. <br>Du kan rita om delar av linjen så länge du inte dragit den sista biten fram till kontrollen.<br>Lycka till!
-		</div>
-		<div id="chat" title="Konversationsfönster">
+		<div id="dialog" title="jsoncode">
+			Dra kontrollerna för att flytta dem rätt. Lägg till genom att klicka och dra i tomma luften.
 		</div>
 		<img class="hidden" id="visibleMap" src="public/tracks/andtorp-m.jpg"></img>
-		<img class="hidden" id="terrainMap" src="public/tracks/andtorp-t.jpg"></img>
 	</body>
 </html>

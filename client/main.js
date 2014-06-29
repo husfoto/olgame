@@ -271,7 +271,7 @@ function onFrame(event){
 		if (currentDistans<mainPath.length){
 			lastLocation=currentLocation;
 			currentLocation=mainPath.getLocationAt(currentDistans).point;
-			currentDistans+=getSpeed(lastLocation,currentLocation)*event.delta*250;
+			currentDistans+=getSpeed(lastLocation,currentLocation)*event.delta*25;
 			runner.position=currentLocation;
 			targetView=runner.position;
 			currentTime+=event.delta;

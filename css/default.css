@@ -2,7 +2,9 @@
 
 body {
 	background:#ffffff;
-	font-size : 12px;
+	font-size : 10px;
+	margin:0px;
+	overflow:hidden;
 }
 
 .no-close .ui-dialog-titlebar-close {
