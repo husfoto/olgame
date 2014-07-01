@@ -33,6 +33,22 @@
 			]
 			},
 
+			{"name" : "Ändtorpsbanan",
+			"creator" : "Erik Österberg",
+				"trackControlPoints" : [
+				{"x" : 1553, "y": 1897},
+				{"x" : 1205, "y": 1627},
+				{"x" : 893, "y": 1277},
+				{"x" : 371, "y": 1329},
+				{"x" : 691, "y": 1877},
+				{"x" : 897, "y": 2307},
+				{"x" : 1143, "y": 2185},
+				{"x" : 1471, "y": 2253},
+				{"x" : 1821, "y": 2083},
+				{"x" : 2065, "y": 2161}
+			]
+			},
+
 			{"name" : "Ändtorpsjoggen",
 			"creator" : "Erik Österberg",
 			"trackControlPoints" : [

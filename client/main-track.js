@@ -8,7 +8,7 @@ var mainLayer=new Layer();
 
 function loadImages(trackName,trackId){
     var request = new XMLHttpRequest();
-    request.open("GET", "public/tracks/andtorp.json", false);//"public/tracks/"+trackName+".json"
+    request.open("GET", "public/tracks/"+trackName+".json", false);
     request.send(null)
 //	request.onreadystatechange = function() {
 //		if ( request.readyState === 4 && request.status === 200 ) {
@@ -25,6 +25,9 @@ function loadImages(trackName,trackId){
 	visibleMap.visible=true;
 	visibleMap.position=new Point(visibleMap.bounds.width/2,visibleMap.bounds.height/2);
 	visibleMap.sendToBack();
+	terrainMap=new Raster('terrainMap');
+	terrainMap.visible=false;
+	terrainMap.position=new Point(visibleMap.bounds.width/2,visibleMap.bounds.height/2);
 }
 
 function drawTrack() {
@@ -82,20 +85,25 @@ function updateWidget() {
 }
 
 function onMouseDown(event) {
-	var i;
-	for (i=0;i<olTrack.length; ++i){
-		if (event.point.getDistance(olTrack[i])<30) {
-			activeCtrl=i;
+	if (!event.modifiers.shift) {
+		var i;
+		for (i=0;i<olTrack.length; ++i){
+			if (event.point.getDistance(olTrack[i])<30) {
+				activeCtrl=i;
+			}
 		}
-	}
-	if (activeCtrl <= -1) {
-		olTrack.push=event.point;
-		activeCtrl=olTrack.length;
-		drawTrack();
+		if (activeCtrl <= -1) {
+			olTrack.push=event.point;
+			activeCtrl=olTrack.length;
+			drawTrack();
+		}
 	}
 }
 
 function onMouseDrag(event) {
+	if (event.modifiers.shift) {
+		view.center-=event.delta;
+	}
 	if (activeCtrl!=-1) {
 		olTrack[activeCtrl]=event.point;
 		drawTrack();
@@ -103,10 +111,17 @@ function onMouseDrag(event) {
 	}
 }
 
+function onMouseMove(event) {
+	var currentPixel = terrainMap.getPixel(event.point);
+	var currentHeight = currentPixel.red*256;//*256;
+	var currentTerrain = currentPixel.green*25.6;//*100;
+	console.log('Höjd='+Math.floor(currentHeight)+' Terräng='+Math.floor(currentTerrain));
+}
+
 function onMouseUp(event){
 	activeCtrl=-1;
 }
 
-loadImages('andtorp',0);
+loadImages('andtorp',2);
 view.center=olTrack[1];
 drawTrack();

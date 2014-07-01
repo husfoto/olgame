@@ -1,12 +1,15 @@
 tool.minDistance = 2;
 view.zoom=0.1;
 dragTolerance=100;
+var replayMult=10;
+var tickRate=10; //ms
 
+var tickTimer;
 var terrainMap;
 var visibleMap;
 var olTrack=new Array;
 var currentCtrl=1;
-var currentLocation, lastLocation, currentDistans;
+var currentLocation, currentDistans;
 var dragMap=false;
 var legTimes=new Array;
 
@@ -31,6 +34,7 @@ var animateRun=false;
 var targetView=view.center; // Sets target view
 var targetZoom=0.5;
 var currentTime=0;
+var currentPace=0;
 
 var	runner=new Path.Circle(view.center,10);
 runner.visible=false;
@@ -54,25 +58,25 @@ function setPathBkg(){
 }
 
 
-function getSpeed(fromPosition,toPosition){
+function getSpeed(fromPosition,runDirectionVector){
 	// Returns speed in m/s for the current location
-	var ascendLength = 5;
-	var runDirectionVector = toPosition-fromPosition;
-		runDirectionVector.length = ascendLength;
+	var ascendLength = 3;
+	runDirectionVector.length = ascendLength;
 	var currentPixel = terrainMap.getPixel(fromPosition);
 	var forwardPixel = terrainMap.getPixel(fromPosition+runDirectionVector);
 	var currentHeight = currentPixel.red*256;
 	var forwardHeight = forwardPixel.red*256;
-	var currentTerrain = currentPixel.green*50; // 0-1 should give *100 for min/km in terrain
+	var currentTerrain = currentPixel.green*25.6;
 	var ascend = (forwardHeight-currentHeight)/ascendLength;
-	var speed = (Math.pow(ascend*0.7-0.3,2)+0.9)*currentTerrain; // in min/km
+	var speed = (1.2-Math.pow(ascend*0.05+0.3,2))*currentTerrain; // in min/km
+	//console.log(speed);
 
-	return 1/(speed*0.06); // Convert to m/s
+	return speed; //min/km
 }
 
 function loadImages(trackName,trackId){
     var request = new XMLHttpRequest();
-    request.open("GET", "public/tracks/andtorp.json", false);
+    request.open("GET", "public/tracks/"+trackName+".json", false);
     request.send(null)
     var my_JSON_object = JSON.parse(request.responseText);
     my_JSON_object.olGame.olTracks[trackId].trackControlPoints.forEach(
@@ -84,11 +88,14 @@ function loadImages(trackName,trackId){
 	terrainMap=new Raster('terrainMap');
 	terrainMap.visible=false;
 	terrainMap.position=new Point(terrainMap.bounds.width/2,terrainMap.bounds.height/2);
+	terrainMap.sendToBack();
 
 	visibleMap=new Raster('visibleMap');
 	visibleMap.visible=true;
 	visibleMap.position=new Point(visibleMap.bounds.width/2,visibleMap.bounds.height/2);
 	visibleMap.sendToBack();
+
+	tickTimer=window.setInterval(onTick,tickRate);
 }
 
 function drawTrack() {
@@ -252,30 +259,34 @@ function activateNextCtrl(){
 	}
 }
 
+function formatTime(timeToConvert) {
+	return timeToConvert.toFixed(2);
+}
+
 function updateLegTimes() {
 	var totalTime=0;
 	var legTableStr='<div class="legTable">';
 	legTimes.forEach(function(value, index){
 		totalTime+=value;
-		legTableStr+='<div class="legTableRow"><div class="legTableColLeft">Str.'+index+'</div><div class="legTableColRight">'+value.toFixed(2)+'</div></div>';		
+		legTableStr+='<div class="legTableRow"><div class="legTableColLeft">Str.'+index+'</div><div class="legTableColRight">'+formatTime(value)+'</div></div>';		
 	});
-	legTableStr+='<div class="legTableRow"><div class="legTableColLeft">Total tid</div><div class="legTableColRight">'+totalTime.toFixed(2)+'</div></div>';
-	legTableStr+='</div>';
+	legTableStr+='<div class="legTableRow"><div class="legTableColLeft">Total tid</div><div class="legTableColRight">'+formatTime(totalTime)+'</div></div>';
+	legTableStr+='</div><br>';
+	if (animateRun) {legTableStr+='(Aktuell min/km : '+currentPace.toFixed(2)};
 	document.getElementById("dialog").innerHTML=legTableStr;
 }
 
-function onFrame(event){
-//console.log(legTimes.length);
+function onTick(){ //Old onFrame
 	// Animate the run //Check order of events
 	if (animateRun) {
 		if (currentDistans<mainPath.length){
-			lastLocation=currentLocation;
 			currentLocation=mainPath.getLocationAt(currentDistans).point;
-			currentDistans+=getSpeed(lastLocation,currentLocation)*event.delta*25;
+			currentPace=getSpeed(currentLocation,mainPath.getTangentAt(currentDistans));
+			currentDistans+=(1/(currentPace*0.06))*(tickRate/1000)*replayMult;	// 1/(speed*0.06); Convert to m/s event.delta*10
 			runner.position=currentLocation;
 			targetView=runner.position;
-			currentTime+=event.delta;
-			legTimes[currentCtrl]=currentTime/3; //3an är en guess på tid
+			currentTime+=tickRate/1000;
+			legTimes[currentCtrl]=currentTime;
 		} else {
 			animateRun=false;
 			++currentCtrl;
@@ -292,6 +303,9 @@ function onFrame(event){
 		}
 		updateLegTimes();
 	}
+}
+
+function onFrame(event) {
 	// Animate view
 	var viewDist=targetView-view.center;
 	if (viewDist.length>1){
@@ -309,7 +323,6 @@ function onFrame(event){
 }
 
 
-loadImages('',2);
+loadImages('andtorp',2);
 drawTrack();
 centerOnCtrl(currentCtrl);
-
