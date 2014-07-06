@@ -10,34 +10,88 @@
 		<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
 	  	<script>
 			window.globals = { 
-					zoomValue:0
+					zoomValue:5
 			}; 
-	  		var buttonsZoom = {
+			function startGameStep2(){
+				$( "#loader" ).dialog( "close" );
+				$( "#chat" ).dialog({ show: { effect: "fade", duration: 2000 } });
+				$( "#dialog" ).dialog({ show: { effect: "fade", duration: 2000 } });
+				$( "#dialog" ).dialog({dialogClass : 'no-close'});
+			};
+			function setProgressLoadFunc(val){
+				$( "#progressLoad" ).progressbar({ value: val });
+			}
+			globals.setProgressLoad=setProgressLoadFunc;
+			function setZoomFunc(){ //Updates zoomslider
+				$( "#zoomSlide" ).slider({ value: globals.zoomValue});				
+			}
+			globals.setZoom=setZoomFunc;
+			window.globals.startGame2=startGameStep2;
+	  		var startButton = {
 	  			buttons : {
-	  				"+":function(){window.globals.zoomValue+=1},
-	  				"-":function(){window.globals.zoomValue-=1}
+	  				"START!":function(){
+	  					window.globals.startGame('andtorp',2);  					
+						$( "#start" ).dialog( "close" );
+						$( "#loader" ).dialog( "open" );
+						$( "#loader" ).dialog({dialogClass : 'no-close'})
+	  				}
 	  			}
 	  		};
+			$(function() {
+				$( "#start" ).dialog({ position: {my: "center center", at: "center center", of: window } });
+				$( "#start" ).dialog( "option", "width", 175 );
+				$( "#start" ).dialog( "option", "height", 200);
+				$( "#start" ).dialog(startButton);
+				$( "#start" ).dialog({dialogClass : 'no-close'})
+			});
+			$(function() {
+				$( "#loader" ).dialog({ position: {my: "center center", at: "center center", of: window } });
+				$( "#loader" ).dialog( "option", "width", 250 );
+				$( "#loader" ).dialog( "option", "height", 120);
+				$( "#loader" ).dialog( "close" );
+			});
+			$(function() {
+				$( "#progressLoad" ).progressbar({ value: false, max: 100});
+			});
+			$(function() {
+				$( "#zoomSlide" ).slider({ value: globals.zoomValue, min:0, max: 10, step:0.1, slide: function( event, ui ) {window.globals.setZoomApp(ui.value);}});
+			});
 			$(function() {
 				$( "#dialog" ).dialog({ position: {my: "right-100 top+50", at: "right top", of: window } });
 				$( "#dialog" ).dialog( "option", "width", 175 );
 				$( "#dialog" ).dialog( "option", "height", 260);
-				$( "#dialog" ).dialog(buttonsZoom);
-				$( "#dialog" ).dialog({dialogClass : 'no-close'})});
+				$( "#dialog" ).dialog( "close" );
+			});
 			$(function() {
 				$( "#chat" ).dialog({ position: {my: "left+5 bottom-5", at: "left bottom", of: window } });
 				$( "#chat" ).dialog( "option", "width", 300 );
-				$( "#chat" ).dialog( "option", "height", 100)});
+				$( "#chat" ).dialog( "close" );
+				$( "#chat" ).dialog( "option", "height", 100);
+			});
 	  	</script>
 	</head>
 	<body>
 		<canvas resize="true" id="olCanvas" ></canvas>
 		<div id="dialog" title="Dina sträcktider">
-			Starta genom att rita en linje från starten. <br>Du kan rita om delar av linjen så länge du inte dragit den sista biten fram till kontrollen.<br>Lycka till!
+			<div id="dialogText">
+				Starta genom att rita en linje från starten. <br>Du kan rita om delar av linjen så länge du inte dragit den sista biten fram till kontrollen.<br>Lycka till!
+			</div><br>
+			Zoom:
+			<div id="zoomSlide"></div>
 		</div>
 		<div id="chat" title="Konversationsfönster">
 		</div>
-		<img class="hidden" id="visibleMap" src="public/tracks/andtorp-m.jpg"></img>
-		<img class="hidden" id="terrainMap" src="public/tracks/andtorp-t.jpg"></img>
+		<div id="start" title="OLGAME">
+			<form method="post" id="olSelector">
+				<label for="1">Namn: </label><input type="text" id="1"/>
+				<label for="2">Bana: </label><input type="text" id="2"/>
+			</form>
+			Ready, set, go!<br><br>
+		</div>
+		<div id="loader" title="OLGAME loading...">
+			Loading maps, tracks, hacks..<br><br>
+			<div id="progressLoad"><div>
+		</div>
+		<div id="pics" class="hidden"></div>
 	</body>
 </html>

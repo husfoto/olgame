@@ -28,7 +28,7 @@ rearPath.strokeColor='blue';
 rearPath.strokeWidth=3;
 
 var tolerance = 20;
-var blockMouse = false;
+var blockMouse = true;
 var tail=false;
 var animateRun=false;
 var targetView=view.center; // Sets target view
@@ -57,6 +57,9 @@ function setPathBkg(){
 		mainPathBkg.strokeColor='black';
 }
 
+function limit(val,min,max) {
+	return Math.min(Math.max(val,max),min);
+}
 
 function getSpeed(fromPosition,runDirectionVector){
 	// Returns speed in m/s for the current location
@@ -75,7 +78,7 @@ function getSpeed(fromPosition,runDirectionVector){
 }
 
 function loadImages(trackName,trackId){
-    var request = new XMLHttpRequest();
+	var request = new XMLHttpRequest();
     request.open("GET", "public/tracks/"+trackName+".json", false);
     request.send(null)
     var my_JSON_object = JSON.parse(request.responseText);
@@ -85,17 +88,32 @@ function loadImages(trackName,trackId){
     	}
     );
 
-	terrainMap=new Raster('terrainMap');
-	terrainMap.visible=false;
-	terrainMap.position=new Point(terrainMap.bounds.width/2,terrainMap.bounds.height/2);
-	terrainMap.sendToBack();
-
-	visibleMap=new Raster('visibleMap');
-	visibleMap.visible=true;
-	visibleMap.position=new Point(visibleMap.bounds.width/2,visibleMap.bounds.height/2);
-	visibleMap.sendToBack();
-
-	tickTimer=window.setInterval(onTick,tickRate);
+	$('<img />')
+	    .attr('src', 'public/tracks/'+trackName+'-t.jpg')
+	    .attr('id','terrainMap')
+	    .load(function(){
+	        $('#pics').append( $(this) );
+			terrainMap=new Raster('terrainMap');
+			terrainMap.visible=false;
+			terrainMap.position=new Point(terrainMap.bounds.width/2,terrainMap.bounds.height/2);
+			terrainMap.sendToBack();
+			$('<img />')
+			    .attr('src', 'public/tracks/'+trackName+'-m.jpg')
+			    .attr('id','visibleMap')
+			    .load(function(){
+			        $('#pics').append( $(this) );
+					visibleMap=new Raster('visibleMap');
+					visibleMap.visible=true;
+					visibleMap.position=new Point(visibleMap.bounds.width/2,visibleMap.bounds.height/2);
+					visibleMap.sendToBack();
+					
+					tickTimer=window.setInterval(onTick,tickRate);
+					drawTrack();
+					centerOnCtrl(currentCtrl);
+					blockMouse=false;
+					globals.startGame2();
+				})
+		})
 }
 
 function drawTrack() {
@@ -273,7 +291,7 @@ function updateLegTimes() {
 	legTableStr+='<div class="legTableRow"><div class="legTableColLeft">Total tid</div><div class="legTableColRight">'+formatTime(totalTime)+'</div></div>';
 	legTableStr+='</div><br>';
 	if (animateRun) {legTableStr+='(Aktuell min/km : '+currentPace.toFixed(2)};
-	document.getElementById("dialog").innerHTML=legTableStr;
+	document.getElementById("dialogText").innerHTML=legTableStr;
 }
 
 function onTick(){ //Old onFrame
@@ -312,17 +330,36 @@ function onFrame(event) {
 		viewDist.length=viewDist.length/25;
 		view.center+=viewDist;
 	}
-	if (globals.zoomValue!=0) {
+/*	if (globals.zoomValue!=0) {
 		targetZoom+=globals.zoomValue/5;
 		globals.zoomValue=0;
-	}
+	}*/
+	globals.zoomValue=view.zoom*5;
+	globals.setZoom();
 	var zoomDiff=view.zoom-targetZoom;
 	if (zoomDiff>0.1 || zoomDiff<-0.1) {
 		view.zoom-=zoomDiff/100;
 	}
 }
 
+function setZoomAppFunc(val) {
+	targetZoom=val/5;
+}
+globals.setZoomApp=setZoomAppFunc;
 
-loadImages('andtorp',2);
-drawTrack();
-centerOnCtrl(currentCtrl);
+/*var testTick;
+var testVal;
+function proggTest() {
+	testTick=window.setInterval(proggTestTick,1000);
+	testVal=0;
+}
+
+function proggTestTick() {
+	testVal+=10;
+	globals.setProgressLoad(testVal);
+}
+
+
+globals.startGame=proggTest;*/
+
+globals.startGame=loadImages;
