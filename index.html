@@ -30,7 +30,11 @@
 	  		var startButton = {
 	  			buttons : {
 	  				"START!":function(){
-	  					window.globals.startGame('andtorp',2);  					
+	  					var e = document.getElementById("trackId");
+						var trackId = e.options[e.selectedIndex].value;
+	  					e = document.getElementById("trackMap");
+						var trackMap = e.options[e.selectedIndex].value;
+	  					window.globals.startGame(trackMap,trackId);  					
 						$( "#start" ).dialog( "close" );
 						$( "#loader" ).dialog( "open" );
 						$( "#loader" ).dialog({dialogClass : 'no-close'})
@@ -39,8 +43,8 @@
 	  		};
 			$(function() {
 				$( "#start" ).dialog({ position: {my: "center center", at: "center center", of: window } });
-				$( "#start" ).dialog( "option", "width", 175 );
-				$( "#start" ).dialog( "option", "height", 200);
+				$( "#start" ).dialog( "option", "width", 225 );
+				$( "#start" ).dialog( "option", "height", 300);
 				$( "#start" ).dialog(startButton);
 				$( "#start" ).dialog({dialogClass : 'no-close'})
 			});
@@ -54,7 +58,7 @@
 				$( "#progressLoad" ).progressbar({ value: false, max: 100});
 			});
 			$(function() {
-				$( "#zoomSlide" ).slider({ value: globals.zoomValue, min:0, max: 10, step:0.1, slide: function( event, ui ) {window.globals.setZoomApp(ui.value);}});
+				$( "#zoomSlide" ).slider({value: globals.zoomValue, min:0, max: 10, step:0.1, slide: function( event, ui ) {window.globals.setZoomApp(ui.value);}});
 			});
 			$(function() {
 				$( "#dialog" ).dialog({ position: {my: "right-100 top+50", at: "right top", of: window } });
@@ -80,13 +84,25 @@
 			<div id="zoomSlide"></div>
 		</div>
 		<div id="chat" title="Konversationsfönster">
+		<input type="test" id="chatLine" size="35"><button id="chatSend">OK</button><br>
+		Erik - <i>Här är tanken att du ska kunna skriva meddelande till din motspelare.</i>
 		</div>
 		<div id="start" title="OLGAME">
 			<form method="post" id="olSelector">
-				<label for="1">Namn: </label><input type="text" id="1"/>
-				<label for="2">Bana: </label><input type="text" id="2"/>
+				<label for="namn">Löpare: </label><br><input type="text" id="namn"/><br>
+				<label for="trackMap">Välj karta</label><br>
+			    <select name="trackMap" id="trackMap">
+			      <option selected="selected" value="andtorp">Ändtorp, Åtvidaberg</option>
+			    </select>
+			    <br>
+				<label for="trackId">Välj bana</label><br>
+			    <select name="trackId" id="trackId">
+			      <option value="0">Namn på bana 1</option>
+			      <option selected="selected" value="1">Namn på bana 2</option>
+			      <option value="2">Namn på bana 3</option>
+			    </select>
 			</form>
-			Ready, set, go!<br><br>
+
 		</div>
 		<div id="loader" title="OLGAME loading...">
 			Loading maps, tracks, hacks..<br><br>

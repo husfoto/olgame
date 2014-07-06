@@ -1,8 +1,9 @@
 tool.minDistance = 2;
 view.zoom=0.1;
-dragTolerance=100;
+dragTolerance=100; //Distance from path to activate pan-mode
 var replayMult=10;
-var tickRate=10; //ms
+var tickRate=50; //ms
+var lastTime,tickTime;
 
 var tickTimer;
 var terrainMap;
@@ -23,18 +24,19 @@ mainPath.strokeColor='orange';
 
 var oldPath = new Path();
 var oldPathTail = new Path();
-var rearPath = new Path(); //Den smala som visar hela banan
+var rearPath = new Path(); //The small track showing running path (At finish this is the complete run)
 rearPath.strokeColor='blue';
 rearPath.strokeWidth=3;
 
-var tolerance = 20;
-var blockMouse = true;
-var tail=false;
-var animateRun=false;
+var tolerance = 20; //Tolerance for appending to current line drawing
+var blockMouse = true; //Block mouse from line drawing input
+var tail=false; //Is there a "tail" while cutting up path
+var animateRun=false; //Is the current leg being animated
 var targetView=view.center; // Sets target view
 var targetZoom=0.5;
 var currentTime=0;
 var currentPace=0;
+var followRunner=false; //Center view on runner as long as not view has been alterd
 
 var	runner=new Path.Circle(view.center,10);
 runner.visible=false;
@@ -78,6 +80,7 @@ function getSpeed(fromPosition,runDirectionVector){
 }
 
 function loadImages(trackName,trackId){
+	globals.setProgressLoad(10);
 	var request = new XMLHttpRequest();
     request.open("GET", "public/tracks/"+trackName+".json", false);
     request.send(null)
@@ -87,11 +90,13 @@ function loadImages(trackName,trackId){
     		olTrack.push(new Point(value.x,value.y));//new Point(value.x,value.y)
     	}
     );
+	globals.setProgressLoad(20);
 
 	$('<img />')
 	    .attr('src', 'public/tracks/'+trackName+'-t.jpg')
 	    .attr('id','terrainMap')
 	    .load(function(){
+    		globals.setProgressLoad(50);
 	        $('#pics').append( $(this) );
 			terrainMap=new Raster('terrainMap');
 			terrainMap.visible=false;
@@ -101,6 +106,7 @@ function loadImages(trackName,trackId){
 			    .attr('src', 'public/tracks/'+trackName+'-m.jpg')
 			    .attr('id','visibleMap')
 			    .load(function(){
+					globals.setProgressLoad(90);
 			        $('#pics').append( $(this) );
 					visibleMap=new Raster('visibleMap');
 					visibleMap.visible=true;
@@ -115,6 +121,8 @@ function loadImages(trackName,trackId){
 				})
 		})
 }
+globals.startGame=loadImages;
+
 
 function drawTrack() {
 	var i;
@@ -183,10 +191,17 @@ function onMouseDown(event){
 				setOldPathStyle();
 				mainPath.add(event.point);
 			} else if (event.point.getDistance(mainPath.lastSegment.point)>dragTolerance) {
-				dragMap=true;				
+				dragMap=true;		
 			} else {mainPath.add(event.point)}; //blockMouse=true (scroll or lines) mainPath.add(event.point)
 		}
-	} else {dragMap=true};
+	} else {
+		dragMap=true;
+		if (event.point.getDistance(runner.position)<tolerance) { //If runner clicked follow runner view
+			followRunner=true;
+		} else {
+			followRunner=false;
+		};
+	};
 }
 
 function onMouseDrag(event){
@@ -273,12 +288,23 @@ function activateNextCtrl(){
 		currentDistans=2;
 		runner.visible=true;
 		animateRun=true;
+		followRunner=true;
 		targetZoom=0.5;
 	}
 }
 
-function formatTime(timeToConvert) {
-	return timeToConvert.toFixed(2);
+function leftPad(number, targetLength) {
+    var output = number + '';
+    while (output.length < targetLength) {
+        output = '0' + output;
+    }
+    return output;
+}
+
+function formatTime(timeToConvert) { //Time in secs, convert to mm:ss
+	var mins=Math.floor(timeToConvert/60);
+	var secs=Math.floor(timeToConvert-mins*60);
+	return mins+":"+leftPad(secs,2);
 }
 
 function updateLegTimes() {
@@ -290,20 +316,24 @@ function updateLegTimes() {
 	});
 	legTableStr+='<div class="legTableRow"><div class="legTableColLeft">Total tid</div><div class="legTableColRight">'+formatTime(totalTime)+'</div></div>';
 	legTableStr+='</div><br>';
-	if (animateRun) {legTableStr+='(Aktuell min/km : '+currentPace.toFixed(2)};
+	if (animateRun) {legTableStr+='(currentPace='+Math.floor(currentPace)+'min/km)'};
 	document.getElementById("dialogText").innerHTML=legTableStr;
 }
 
-function onTick(){ //Old onFrame
+function onTick(){
+	var cTime=Date.now();
+	tickTime=cTime-lastTime;
+	lastTime=cTime;
+	 //Old onFrame
 	// Animate the run //Check order of events
 	if (animateRun) {
 		if (currentDistans<mainPath.length){
 			currentLocation=mainPath.getLocationAt(currentDistans).point;
 			currentPace=getSpeed(currentLocation,mainPath.getTangentAt(currentDistans));
-			currentDistans+=(1/(currentPace*0.06))*(tickRate/1000)*replayMult;	// 1/(speed*0.06); Convert to m/s event.delta*10
+			currentDistans+=(1/(currentPace*0.06))*(tickTime/1000)*replayMult;	// 1/(speed*0.06); Convert to m(pixel)/s 
 			runner.position=currentLocation;
-			targetView=runner.position;
-			currentTime+=tickRate/1000;
+			if (followRunner) {targetView=runner.position};
+			currentTime+=(tickTime/1000)*replayMult;
 			legTimes[currentCtrl]=currentTime;
 		} else {
 			animateRun=false;
@@ -338,7 +368,7 @@ function onFrame(event) {
 	globals.setZoom();
 	var zoomDiff=view.zoom-targetZoom;
 	if (zoomDiff>0.1 || zoomDiff<-0.1) {
-		view.zoom-=zoomDiff/100;
+		view.zoom-=zoomDiff/10;
 	}
 }
 
@@ -361,5 +391,3 @@ function proggTestTick() {
 
 
 globals.startGame=proggTest;*/
-
-globals.startGame=loadImages;
