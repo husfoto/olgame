@@ -10,23 +10,43 @@
 		<script src="http://code.jquery.com/ui/1.11.0/jquery-ui.js"></script>
 	  	<script>
 			window.globals = { 
-					zoomValue:5
+					zoomValue:5,
 			}; 
+			$(function(){$( "#chatSend" ).click(function(){
+				globals.getFromOtherPlayer($( '#chatLine' ).val());
+				$( '#chatLine' ).val("");
+			})});
+
+			$(function(){$( "#nextLegDiv" ).slideUp()});
+
+			function showNextLegDiv(){
+				$(function(){$( "#nextLegDiv" ).slideDown()});
+			};
+			globals.waitForNextLeg=showNextLegDiv;
+
+			$(function(){$( "#nextLeg" ).click(function(){
+				globals.startNextLeg();
+				$(function(){$( "#nextLegDiv" ).slideUp()});
+			})});
+			
 			function startGameStep2(){
 				$( "#loader" ).dialog( "close" );
 				$( "#chat" ).dialog({ show: { effect: "fade", duration: 2000 } });
 				$( "#dialog" ).dialog({ show: { effect: "fade", duration: 2000 } });
 				$( "#dialog" ).dialog({dialogClass : 'no-close'});
 			};
+			globals.startGame2=startGameStep2;
+			
 			function setProgressLoadFunc(val){
 				$( "#progressLoad" ).progressbar({ value: val });
 			}
 			globals.setProgressLoad=setProgressLoadFunc;
+			
 			function setZoomFunc(){ //Updates zoomslider
 				$( "#zoomSlide" ).slider({ value: globals.zoomValue});				
 			}
 			globals.setZoom=setZoomFunc;
-			window.globals.startGame2=startGameStep2;
+	  		
 	  		var startButton = {
 	  			buttons : {
 	  				"START!":function(){
@@ -68,7 +88,7 @@
 			});
 			$(function() {
 				$( "#chat" ).dialog({ position: {my: "left+5 bottom-5", at: "left bottom", of: window } });
-				$( "#chat" ).dialog( "option", "width", 300 );
+				$( "#chat" ).dialog( "option", "width", 500 );
 				$( "#chat" ).dialog( "close" );
 				$( "#chat" ).dialog( "option", "height", 100);
 			});
@@ -82,27 +102,27 @@
 			</div><br>
 			Zoom:
 			<div id="zoomSlide"></div>
+			<div id="nextLegDiv"><input type="button" id="nextLeg" value="STARTA NÄSTA CTRL"></div>
 		</div>
 		<div id="chat" title="Konversationsfönster">
-		<input type="test" id="chatLine" size="35"><button id="chatSend">OK</button><br>
+		<input type="test" id="chatLine" size="60"><input type="button" id="chatSend" value="REGISTER"><br>
+		<div id="chatText">
 		Erik - <i>Här är tanken att du ska kunna skriva meddelande till din motspelare.</i>
+		<div>
 		</div>
 		<div id="start" title="OLGAME">
-			<form method="post" id="olSelector">
-				<label for="namn">Löpare: </label><br><input type="text" id="namn"/><br>
-				<label for="trackMap">Välj karta</label><br>
-			    <select name="trackMap" id="trackMap">
-			      <option selected="selected" value="andtorp">Ändtorp, Åtvidaberg</option>
-			    </select>
-			    <br>
-				<label for="trackId">Välj bana</label><br>
-			    <select name="trackId" id="trackId">
-			      <option value="0">Namn på bana 1</option>
-			      <option selected="selected" value="1">Namn på bana 2</option>
-			      <option value="2">Namn på bana 3</option>
-			    </select>
-			</form>
-
+			<label for="namn">Löpare: </label><br><input type="text" id="namn"/><br>
+			<label for="trackMap">Välj karta</label><br>
+		    <select name="trackMap" id="trackMap">
+		      <option selected="selected" value="andtorp">Ändtorp, Åtvidaberg</option>
+		    </select>
+		    <br>
+			<label for="trackId">Välj bana</label><br>
+		    <select name="trackId" id="trackId">
+		      <option value="0">Namn på bana 1</option>
+		      <option selected="selected" value="1">Namn på bana 2</option>
+		      <option value="2">Namn på bana 3</option>
+		    </select>
 		</div>
 		<div id="loader" title="OLGAME loading...">
 			Loading maps, tracks, hacks..<br><br>

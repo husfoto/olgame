@@ -10,9 +10,7 @@ var terrainMap;
 var visibleMap;
 var olTrack=new Array;
 var currentCtrl=1;
-var currentLocation, currentDistans;
 var dragMap=false;
-var legTimes=new Array;
 
 var mainPathBkg = new Path();
 mainPathBkg.strokeWidth=6;
@@ -28,21 +26,37 @@ var rearPath = new Path(); //The small track showing running path (At finish thi
 rearPath.strokeColor='blue';
 rearPath.strokeWidth=3;
 
+var secondPath=new Path();
+
 var tolerance = 20; //Tolerance for appending to current line drawing
 var blockMouse = true; //Block mouse from line drawing input
 var tail=false; //Is there a "tail" while cutting up path
 var animateRun=false; //Is the current leg being animated
 var targetView=view.center; // Sets target view
 var targetZoom=0.5;
-var currentTime=0;
-var currentPace=0;
 var followRunner=false; //Center view on runner as long as not view has been alterd
+
+var	runner2=new Path.Circle(view.center,10);
+runner2.visible=false;
+runner2.strokeWidth=2;
+runner2.strokeColor='black';
+runner2.fillColor='red';	
+var currentTime2=0;
+var currentPace2=0;
+var currentLocation2=0;
+var currentDistans2=0;
+var legTimes2=new Array;
 
 var	runner=new Path.Circle(view.center,10);
 runner.visible=false;
 runner.strokeWidth=2;
 runner.strokeColor='black';
 runner.fillColor='yellow';	
+var currentTime=0;
+var currentPace=0;
+var currentLocation=0;
+var currentDistans=0;
+var legTimes=new Array;
 
 function setOldPathStyle(){
 	oldPath.strokeColor='mediumgray';
@@ -121,7 +135,7 @@ function loadImages(trackName,trackId){
 				})
 		})
 }
-globals.startGame=loadImages;
+window.globals.startGame=loadImages;
 
 
 function drawTrack() {
@@ -278,20 +292,52 @@ function centerOnCtrl(idx){
 function activateNextCtrl(){
 	blockMouse=true;
 	if (currentCtrl<(olTrack.length)){
-		mainPath.simplify();
-		rearPath.addSegments(mainPath.segments);
-		mainPathBkg.removeSegments();
+		mainPath.simplify(); //mainPath now includes the last leg
+		sendToOtherPlayer(mainPath); //Send to main to chat window
 
-		currentDistans=0;
-		currentTime=0;
-		currentLocation=mainPath.getLocationAt(currentDistans).point;
-		currentDistans=2;
-		runner.visible=true;
-		animateRun=true;
+		rearPath.addSegments(mainPath.segments); //Add main to the loong rear one
+		mainPathBkg.removeSegments(); //Empty main
+
+		currentDistans=currentDistans2=0;
+		currentTime=currentTime2=0;
+		currentLocation=currentLocation2=mainPath.getLocationAt(currentDistans).point;
+		currentDistans=currentDistans2=2;
+		runner.visible=runner2.visible=true;
+		globals.waitForNextLeg();
 		followRunner=true;
 		targetZoom=0.5;
 	}
 }
+
+function startNextLegFunc(){
+		animateRun=true;
+};
+globals.startNextLeg=startNextLegFunc;
+
+function sendToOtherPlayer(pathToSend){
+	var currentPath=new Array();
+	var currentPathStr="";
+	for (var i=0;i<pathToSend.segments.length;i++){
+		currentPath.push({x:Math.floor(pathToSend.segments[i].point.x),y:Math.floor(pathToSend.segments[i].point.y)});
+		currentPathStr+=leftPad(Math.floor(pathToSend.segments[i].point.x),4);
+		currentPathStr+=leftPad(Math.floor(pathToSend.segments[i].point.y),4);
+	} 
+	document.getElementById("chatText").innerHTML=currentPathStr;
+}
+
+function getFromOtherPlayerFunc(pathValues) {
+	var numPoints=pathValues.length/8;
+	secondPath.removeSegments();	
+	secondPath.strokeWidth=4;
+	secondPath.strokeColor='yellow';
+	secondPath.visible=true;
+	for (var i=0;i<numPoints;i++){
+		console.log(Number(pathValues.substr(i*8,4))+" "+Number(pathValues.substr(i*8+4,4)));
+		secondPath.add(new Point(Number(pathValues.substr(i*8,4)),Number(pathValues.substr(i*8+4,4))));
+	}
+}
+globals.getFromOtherPlayer=getFromOtherPlayerFunc;
+
 
 function leftPad(number, targetLength) {
     var output = number + '';
@@ -326,7 +372,7 @@ function onTick(){
 	lastTime=cTime;
 	 //Old onFrame
 	// Animate the run //Check order of events
-	if (animateRun) {
+	if (animateRun) {		
 		if (currentDistans<mainPath.length){
 			currentLocation=mainPath.getLocationAt(currentDistans).point;
 			currentPace=getSpeed(currentLocation,mainPath.getTangentAt(currentDistans));
