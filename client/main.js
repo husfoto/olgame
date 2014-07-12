@@ -47,6 +47,7 @@ var currentLocation2=0;
 var currentDistans2=0;
 var legTimes2=new Array;
 var diffTime2=0;
+var	totalTime2=0;
 
 var	runner=new Path.Circle(view.center,10);
 runner.visible=false;
@@ -59,6 +60,7 @@ var currentLocation=0;
 var currentDistans=0;
 var legTimes=new Array;
 var diffTime=0;
+var	totalTime=0;
 
 function setOldPathStyle(){
 	oldPath.strokeColor='mediumgray';
@@ -355,13 +357,18 @@ function formatTime(timeToConvert) { //Time in secs, convert to mm:ss
 }
 
 function updateLegTimes() {
-	var totalTime=0;
+	totalTime=0;
+	totalTime2=0;
+	var value2;
 	var legTableStr='<div class="legTable">';
-	legTimes.forEach(function(value, index){
+	for (var index=1;index<currentCtrl+1;index++){
+		if (legTimes[index]){value=legTimes[index]} else {value=0};		
+		if (legTimes2[index]){value2=legTimes2[index]} else {value2=0};
 		totalTime+=value;
-		legTableStr+='<div class="legTableRow"><div class="legTableColLeft">Str.'+index+'</div><div class="legTableColRight">'+formatTime(value)+'</div></div>';		
-	});
-	legTableStr+='<div class="legTableRow"><div class="legTableColLeft">Total tid</div><div class="legTableColRight">'+formatTime(totalTime)+'</div></div>';
+		totalTime2+=value2;
+		legTableStr+='<div class="legTableRow"><div class="legTableColLeft">Str.'+index+'</div><div class="legTableColRight">('+formatTime(value2)+')</div><div class="legTableColRight">'+formatTime(value)+'</div></div>';		
+	};
+	legTableStr+='<div class="legTableRow"><div class="legTableColLeft">Total tid</div><div class="legTableColRight">('+formatTime(totalTime2)+')</div><div class="legTableColRight">'+formatTime(totalTime)+'</div></div>';
 	legTableStr+='</div><br>';
 	if (animateRun) {legTableStr+='(currentPace='+Math.floor(currentPace)+'min/km)'};
 	document.getElementById("dialogText").innerHTML=legTableStr;
@@ -397,8 +404,8 @@ function onTick(){
 				diffTime2+=(tickTime/1000)*replayMult;
 			};
 			if (currentDistans>=mainPath.length && currentDistans2>=secondPath.length){ //Noones still running
-				diffTime=currentTime2-currentTime;
-				diffTime2=currentTime-currentTime2;
+				diffTime=totalTime2-totalTime;
+				diffTime2=totalTime-totalTime2;
 				animateRun=false;
 				++currentCtrl;
 				mainPath.removeSegments();
