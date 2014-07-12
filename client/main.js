@@ -46,6 +46,7 @@ var currentPace2=0;
 var currentLocation2=0;
 var currentDistans2=0;
 var legTimes2=new Array;
+var diffTime2=0;
 
 var	runner=new Path.Circle(view.center,10);
 runner.visible=false;
@@ -57,6 +58,7 @@ var currentPace=0;
 var currentLocation=0;
 var currentDistans=0;
 var legTimes=new Array;
+var diffTime=0;
 
 function setOldPathStyle(){
 	oldPath.strokeColor='mediumgray';
@@ -330,9 +332,8 @@ function getFromOtherPlayerFunc(pathValues) {
 	secondPath.removeSegments();	
 	secondPath.strokeWidth=4;
 	secondPath.strokeColor='yellow';
-	secondPath.visible=true;
+	secondPath.visible=false;
 	for (var i=0;i<numPoints;i++){
-		console.log(Number(pathValues.substr(i*8,4))+" "+Number(pathValues.substr(i*8+4,4)));
 		secondPath.add(new Point(Number(pathValues.substr(i*8,4)),Number(pathValues.substr(i*8+4,4))));
 	}
 }
@@ -372,28 +373,68 @@ function onTick(){
 	lastTime=cTime;
 	 //Old onFrame
 	// Animate the run //Check order of events
-	if (animateRun) {		
-		if (currentDistans<mainPath.length){
-			currentLocation=mainPath.getLocationAt(currentDistans).point;
-			currentPace=getSpeed(currentLocation,mainPath.getTangentAt(currentDistans));
-			currentDistans+=(1/(currentPace*0.06))*(tickTime/1000)*replayMult;	// 1/(speed*0.06); Convert to m(pixel)/s 
-			runner.position=currentLocation;
-			if (followRunner) {targetView=runner.position};
-			currentTime+=(tickTime/1000)*replayMult;
-			legTimes[currentCtrl]=currentTime;
-		} else {
-			animateRun=false;
-			++currentCtrl;
-			mainPath.removeSegments();
-			setPathBkg();
-			if (currentCtrl==olTrack.length) {
-				targetView=rearPath.bounds.center;
-				targetZoom=0.3;
-				console.log('SLUT');
+	if (animateRun) {
+		if (secondPath.length>2) {//2nd player active
+			if (currentDistans<mainPath.length && diffTime>=0){ //p1 still running
+				currentLocation=mainPath.getLocationAt(currentDistans).point;
+				currentPace=getSpeed(currentLocation,mainPath.getTangentAt(currentDistans));
+				currentDistans+=(1/(currentPace*0.06))*(tickTime/1000)*replayMult;	// 1/(speed*0.06); Convert to m(pixel)/s 
+				runner.position=currentLocation;
+				if (followRunner) {targetView=runner.position};
+				currentTime+=(tickTime/1000)*replayMult;
+				legTimes[currentCtrl]=currentTime;
 			} else {
-				centerOnCtrl(currentCtrl);
-				blockMouse=false;
+				diffTime+=(tickTime/1000)*replayMult;
+			};
+			if (currentDistans2<secondPath.length && diffTime2>=0){ //p2 still running
+				currentLocation2=secondPath.getLocationAt(currentDistans2).point;
+				currentPace2=getSpeed(currentLocation2,secondPath.getTangentAt(currentDistans2));
+				currentDistans2+=(1/(currentPace2*0.06))*(tickTime/1000)*replayMult;	// 1/(speed*0.06); Convert to m(pixel)/s 
+				runner2.position=currentLocation2;
+				currentTime2+=(tickTime/1000)*replayMult;
+				legTimes2[currentCtrl]=currentTime2;
+			} else {
+				diffTime2+=(tickTime/1000)*replayMult;
+			};
+			if (currentDistans>=mainPath.length && currentDistans2>=secondPath.length){ //Noones still running
+				diffTime=currentTime2-currentTime;
+				diffTime2=currentTime-currentTime2;
+				animateRun=false;
+				++currentCtrl;
+				mainPath.removeSegments();
+				setPathBkg();
+				if (currentCtrl==olTrack.length) {
+					targetView=rearPath.bounds.center;
+					targetZoom=0.3;
+					console.log('SLUT');
+				} else {
+					centerOnCtrl(currentCtrl);
+					blockMouse=false;
+				}
 			}
+		} else {
+			if (currentDistans<mainPath.length){
+				currentLocation=mainPath.getLocationAt(currentDistans).point;
+				currentPace=getSpeed(currentLocation,mainPath.getTangentAt(currentDistans));
+				currentDistans+=(1/(currentPace*0.06))*(tickTime/1000)*replayMult;	// 1/(speed*0.06); Convert to m(pixel)/s 
+				runner.position=currentLocation;
+				if (followRunner) {targetView=runner.position};
+				currentTime+=(tickTime/1000)*replayMult;
+				legTimes[currentCtrl]=currentTime;
+			} else {
+				animateRun=false;
+				++currentCtrl;
+				mainPath.removeSegments();
+				setPathBkg();
+				if (currentCtrl==olTrack.length) {
+					targetView=rearPath.bounds.center;
+					targetZoom=0.3;
+					console.log('SLUT');
+				} else {
+					centerOnCtrl(currentCtrl);
+					blockMouse=false;
+				}
+			}			
 		}
 		updateLegTimes();
 	}
